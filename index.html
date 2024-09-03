@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Course Form</title>
+</head>
+<body>
+    <form action="" method="post" id="Coursedata">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" ><br>
+
+        <label for="category">Category:</label>
+        <input type="text" id="category" name="category" ><br>
+
+        <label for="instructor">Preparation Time:</label>
+        <input type="text" id="instructor" name="instructor" ><br>
+
+        <label for="duration">Cooking Time:</label>
+        <input type="number" id="duration" name="duration" ><br>
+        <input type="submit" value="Submit">
+    </form>
+    <div id="Coursedisplay"></div>
+
+    <script>
+        const postData = (data) => {
+            fetch("http://localhost:8090/courses/add", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(responseData => {
+                console.log(responseData);
+                mapper(responseData);
+            })
+        };
+
+        const updateData = (id, data) => {
+            fetch(`http://localhost:8090/courses/update/${id}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(responseData => {
+                console.log(responseData);
+                mapper(responseData);
+            })
+           
+        };
+
+        const deleteData = (id) => {
+            fetch(`http://localhost:8090/courses/delete/${id}`, {
+                method: "DELETE"
+            })
+            .then(response => response.json())
+            .then(responseData => {
+                console.log(responseData);
+                mapper(responseData);
+            })
+           
+        };
+
+        const handleData = (e) => {
+            e.preventDefault();
+            const data = {
+                name: document.getElementById('name').value,
+                category: document.getElementById('category').value,
+                instructor: document.getElementById('instructor').value,
+                duration: document.getElementById('duration').value,
+            };
+            postData(data);
+        };
+
+        document.getElementById("Coursedata").addEventListener("submit", handleData);
+
+        const mapper = (data) => {
+            document.getElementById("Coursedisplay").innerHTML = "";
+
+            data.forEach(ele => {
+                const h1 = document.createElement("h1");
+                h1.textContent = ele.name;
+                const h2 = document.createElement("h2");
+                h2.textContent = ele.category;
+                const h3 = document.createElement("h3");
+                h3.textContent = `Preparation Time: ${ele.instructor}`;
+                const p = document.createElement("p");
+                p.textContent = `Cooking Time: ${ele.duration}`;
+                const div = document.createElement("div");
+
+                const deletebtn = document.createElement("button");
+                deletebtn.textContent = "Delete";
+                deletebtn.addEventListener("click", () => deleteData(ele.id));
+
+                const updatebtn = document.createElement("button");
+                updatebtn.textContent = "Update";
+                updatebtn.addEventListener("click", () => {
+                    const updatedData = {
+                        name: prompt("Enter new name", ele.name),
+                        category: prompt("Enter new category", ele.category),
+                        instructor: prompt("Enter new preparation time", ele.instructor),
+                        duration: prompt("Enter new cooking time", ele.duration),
+                    };
+                    updateData(ele.id, updatedData);
+                });
+
+                div.append(h1, h2, h3, p, deletebtn, updatebtn);
+                document.getElementById("Coursedisplay").appendChild(div);
+            });
+        };
+    </script>
+</body>
+</html>
